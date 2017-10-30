@@ -25,9 +25,23 @@ func scanMessage(row *sql.Rows) (*discordgo.Message, error) {
 	var (
 		embeds      string
 		attachments string
+		nickname    string
 	)
+
 	msg := &discordgo.Message{}
-	err := row.Scan(&msg.ChannelID, &msg.ID, &msg.Author.ID, &msg.Author.Username, nil, &msg.Content, &embeds, &attachments)
+	msg.Author = &discordgo.User{}
+
+	err := row.Scan(
+		&msg.ChannelID,
+		&msg.ID,
+		&msg.Author.ID,
+		&msg.Author.Username,
+		&nickname,
+		&msg.Author.Avatar,
+		&msg.Content,
+		&embeds,
+		&attachments)
+
 	if err != nil {
 		return nil, err
 	}

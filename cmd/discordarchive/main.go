@@ -107,7 +107,7 @@ func main() {
 				}
 
 				err = arc.ArchiveMembers(session, tx, channel.GuildID, &discordarchive.Options{
-					SaveAvatars: true,
+					SaveAvatars: *SaveAvatars,
 					AvatarSize:  *AvatarSize,
 				})
 				if err != nil {

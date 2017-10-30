@@ -153,6 +153,7 @@ func (a *Archiver) InitDB(tx *sql.Tx, opt *Options) error {
 			"userID TEXT, " +
 			"username TEXT, " +
 			"nickname TEXT, " +
+			"avatar TEXT, " +
 			"content TEXT, " +
 			"embedsJSON TEXT, " +
 			"attachmentsJSON TEXT, " +
@@ -319,11 +320,11 @@ func (a *Archiver) InsertMessage(s *discordgo.Session, guildID string, tx *sql.T
 		embedsJSON = string(e)
 	}
 
-	smt, err := tx.Prepare("INSERT INTO messages VALUES(?, ?, ?, ?, ?, ?, ?, ?)")
+	smt, err := tx.Prepare("INSERT INTO messages VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
-	if _, err = smt.Exec(msg.ChannelID, msg.ID, msg.Author.ID, msg.Author.Username, nickname, msg.Content, embedsJSON, attachmentsJSON); err != nil {
+	if _, err = smt.Exec(msg.ChannelID, msg.ID, msg.Author.ID, msg.Author.Username, nickname, msg.Author.Avatar, msg.Content, embedsJSON, attachmentsJSON); err != nil {
 		return err
 	}
 	smt.Close()

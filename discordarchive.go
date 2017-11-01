@@ -81,14 +81,6 @@ type Archiver struct {
 	// Defaults to './'
 	SavePath string
 
-	// store a list of unknown members to prevent excess api queries.
-	// map(guildID+userid)
-	unknownMembers map[string]bool
-
-	// archivedMembers map(guildid+userid) stores whether a particular member has already been archived.
-	archivedMembers map[string]bool
-	// nicknames maps (guildid+userid) to their nicknames
-	nicknames map[string]string
 	// limits the amount of actively downloading files
 	downloadTokens chan struct{}
 	// custom http client for downloading files
@@ -98,12 +90,9 @@ type Archiver struct {
 // New returns a new archiver
 func New() *Archiver {
 	a := &Archiver{
-		Log:             nil,
-		SavePath:        "./",
-		unknownMembers:  map[string]bool{},
-		archivedMembers: map[string]bool{},
-		nicknames:       map[string]string{},
-		downloadTokens:  make(chan struct{}, numdownloadtokens),
+		Log:            nil,
+		SavePath:       "./",
+		downloadTokens: make(chan struct{}, numdownloadtokens),
 		httpclient: &http.Client{
 			Timeout: time.Second * 15,
 		},
@@ -127,20 +116,6 @@ func (a *Archiver) log(args ...interface{}) {
 	}
 }
 
-func (a *Archiver) isMemberUnknown(guildID, userID string) bool {
-	if v, ok := a.unknownMembers[guildID+userID]; ok {
-		return v
-	}
-	return false
-}
-
-func (a *Archiver) isMemberArchived(guildID, userID string) bool {
-	if v, ok := a.archivedMembers[guildID+userID]; ok {
-		return v
-	}
-	return false
-}
-
 // InitDB initializes the database with the required tables
 func (a *Archiver) InitDB(tx *sql.Tx, opt *Options) error {
 	if opt == nil {
@@ -152,9 +127,9 @@ func (a *Archiver) InitDB(tx *sql.Tx, opt *Options) error {
 			"messageID TEXT, " +
 			"userID TEXT, " +
 			"username TEXT, " +
-			"nickname TEXT, " +
 			"avatar TEXT, " +
 			"content TEXT, " +
+			"mentionsJSON TEXT, " +
 			"embedsJSON TEXT, " +
 			"attachmentsJSON TEXT, " +
 			"UNIQUE(channelID, messageID))",
@@ -285,32 +260,13 @@ func (a *Archiver) InsertChannel(tx *sql.Tx, channel *discordgo.Channel) error {
 // InsertMessage inserts a message into the database
 func (a *Archiver) InsertMessage(s *discordgo.Session, guildID string, tx *sql.Tx, msg *discordgo.Message, opt *Options) error {
 	var (
-		nickname        string
 		attachmentsJSON string
 		embedsJSON      string
+		mentionsJSON    string
 	)
 
 	if opt == nil {
 		opt = NewOptions()
-	}
-
-	if v, ok := a.nicknames[guildID+msg.Author.ID]; ok {
-		nickname = v
-	} else {
-		// attempt to obtain a user's nickname
-		if !a.isMemberUnknown(guildID, msg.Author.ID) {
-			member, err := s.State.Member(guildID, msg.Author.ID)
-			if err != nil {
-				member, err = s.GuildMember(guildID, msg.Author.ID)
-			}
-			if member != nil {
-				nickname = member.Nick
-				a.nicknames[guildID+msg.Author.ID] = member.Nick
-			} else {
-				a.unknownMembers[guildID+msg.Author.ID] = true
-				a.logf("[warning] member [%s] not found. adding to list of unknown members", msg.Author.Username)
-			}
-		}
 	}
 
 	if a, err := json.Marshal(msg.Attachments); err == nil {
@@ -319,15 +275,28 @@ func (a *Archiver) InsertMessage(s *discordgo.Session, guildID string, tx *sql.T
 	if e, err := json.Marshal(msg.Embeds); err == nil {
 		embedsJSON = string(e)
 	}
+	if e, err := json.Marshal(msg.Mentions); err == nil {
+		mentionsJSON = string(e)
+	}
 
 	smt, err := tx.Prepare("INSERT INTO messages VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if err != nil {
 		return err
 	}
-	if _, err = smt.Exec(msg.ChannelID, msg.ID, msg.Author.ID, msg.Author.Username, nickname, msg.Author.Avatar, msg.Content, embedsJSON, attachmentsJSON); err != nil {
+	defer smt.Close()
+	if _, err = smt.Exec(
+		msg.ChannelID,
+		msg.ID,
+		msg.Author.ID,
+		msg.Author.Username,
+		msg.Author.Avatar,
+		msg.Content,
+		mentionsJSON,
+		embedsJSON,
+		attachmentsJSON,
+	); err != nil {
 		return err
 	}
-	smt.Close()
 
 	return nil
 }

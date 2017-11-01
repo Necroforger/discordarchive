@@ -80,7 +80,7 @@ func main() {
 				return
 			}
 			err = arc.ArchiveMembers(session, tx, id, &discordarchive.Options{
-				SaveAvatars: true,
+				SaveAvatars: *SaveAvatars,
 				AvatarSize:  *AvatarSize,
 			})
 		}

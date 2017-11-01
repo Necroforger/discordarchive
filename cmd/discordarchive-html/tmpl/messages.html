@@ -1,0 +1,15 @@
+{{ define "messages" }}
+<div class='message-pane'>
+    {{ range .Messages -}}
+    <div class='message-block'>
+        <div class='userinfo'>
+            <img class='avatar' src='{{ getavatar .Author}}'>
+            <span class='username'>{{.Author.Username}}</span>
+            <span class='nickname'>{{ getnickname .Author.ID}}</span>
+            <span class='msgid'>{{.ID}}</span>
+        </div>
+        <span class='content'>{{.ContentWithMentionsReplaced}}</span>
+    </div>
+    {{end}}
+</div>
+{{end}}

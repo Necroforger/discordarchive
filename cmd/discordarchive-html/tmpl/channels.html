@@ -1,0 +1,9 @@
+{{ define "channels"}}
+<div class='channel-pane'>
+    {{range .Channels }}
+    <div class='channel-block'>
+        <span class='channel-name'>{{.Name}}</span>
+    </div>
+    {{end}}
+</div>
+{{end}}

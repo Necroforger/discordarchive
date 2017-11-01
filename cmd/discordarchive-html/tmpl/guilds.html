@@ -1,0 +1,10 @@
+{{ define "guilds" }}
+<div class='guild-pane'>
+    {{ range .Guilds }} 
+        <div class='guild-block'>
+            <img class='guild-splash' src='{{ getguildsplash . }}'>
+            <span class='guild-name'>{{ .Name }}</span>
+        </div>
+    {{ end }}
+</div>
+{{ end }}

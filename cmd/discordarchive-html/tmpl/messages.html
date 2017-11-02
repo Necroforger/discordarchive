@@ -9,6 +9,18 @@
             <span class='msgid'>{{.ID}}</span>
         </div>
         <span class='content'>{{.ContentWithMentionsReplaced}}</span>
+        {{ range .Attachments }}
+        <div class='attachment'>
+            <img class='attachment-image' src='{{ .URL }}'>
+        </div>
+        {{ end }}
+        {{ range .Embeds }}
+        <div class='embed'>
+            {{ if .Thumbnail }}
+            <a href='{{.URL}}'><img class='embed-thumbnail' src='{{.Thumbnail.URL}}'></a>
+            {{ end }}
+        </div>
+        {{ end }}
     </div>
     {{end}}
 </div>

@@ -1,5 +1,6 @@
-{{ define "main" }} 
+{{ define "main" }}
 <html>
+
 <head>
     <title>Discord archive</title>
     <style>
@@ -9,18 +10,21 @@
             background-color: #36393E;
             color: #C0BABC;
         }
+
         /* Scrollbar colours */
+
         ::-webkit-scrollbar {
             width: 3px;
-            background: transparent; /* make scrollbar transparent */
+            background: transparent;
+            /* make scrollbar transparent */
         }
+
         ::-webkit-scrollbar-thumb {
             background-color: rgb(255, 255, 255);
         }
 
-        /* ////////////////// */
         /* Guilds             */
-        /* ////////////////// */
+
         .guild-pane {
             position: fixed;
             width: 100px;
@@ -29,6 +33,7 @@
             padding-top: 30px;
             overflow-y: scroll;
         }
+
         .guild-block {
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             border-bottom: 1px solid rgb(128, 116, 116);
@@ -38,13 +43,13 @@
             color: white;
             word-wrap: break-word;
         }
+
         .guild-block:hover {
             background-color: black;
         }
 
-        /* ////////////////// */
         /* Channels           */
-        /* ////////////////// */
+
         .channel-pane {
             padding-top: 30px;
             left: 100px;
@@ -54,6 +59,15 @@
             background-color: #101113;
             overflow-y: scroll;
         }
+        .channel-pane a {
+            text-decoration: none;
+        }
+
+        .channel-pane-guildname {
+            padding-left: 10px;
+            margin-bottom: 10px;
+        }
+
         .channel-block {
             padding-left: 10px;
             color: white;
@@ -61,55 +75,155 @@
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             padding-bottom: 10px;
         }
+
         .channel-block:hover {
             background-color: purple;
         }
 
-        /* /////////////////// */
+
+        /* Menu             */
+
+        .menu-pane {
+            position: fixed;
+            top: 0px;
+            left: 350px;
+            height: 50px;
+            right: 0px;
+            overflow: hidden;
+            padding-left: 30px;
+            box-shadow: 0px 0px 5px 0px black;
+        }
+
+        .menu-channel-name {
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-size: 30px;
+        }
+
+        .menu-pane button {
+            margin-left: 20px;
+            float: right;
+            width: 50px;
+            height: 100%;
+            border: none;
+            box-shadow: 0px 0px 5px 0px black;
+            background-color: #36393E;
+            color: white;
+        }
+
         /* Messages            */
-        /* /////////////////// */
         .message-pane {
             overflow-y: scroll;
+            overflow-x: hidden;
             left: 350px;
-            top: 0px;
+            top: 50px;
             bottom: 0px;
             right: 0px;
             position: fixed;
         }
+
         .message-block {
             border-bottom: 1px solid rgb(66, 62, 63);
             padding-bottom: 30px;
             padding-top: 10px;
             padding-left: 20px;
         }
+
         .username {
             padding-left: 10px;
             vertical-align: top;
             color: white;
         }
+
         .nickname {
             padding-left: 20px;
             vertical-align: top;
         }
+
         .avatar {
             border-radius: 360px;
         }
+
         .content {
             white-space: pre-wrap;
             word-wrap: break-word;
         }
+
+        .attachment-image,
+        .embed-thumbnail {
+            max-width: 25vw;
+            max-height: 25vh;
+        }
+
         .userinfo {
             padding-bottom: 10px;
         }
+
         .msgid {
             float: right;
         }
     </style>
 </head>
+
 <body>
-    {{ template "guilds" . }}
-    {{ template "channels" .}}
+    {{ template "guilds" . }} 
+    {{ template "channels" .}} 
+    {{ template "menu" .}} 
     {{ template "messages" . }}
+    <script>
+        var messagePane, 
+            btnScrollTop, 
+            btnScrollBottom,
+            btnToggleImages;
+
+        var settings = {
+            startAtBottom: true,
+            showImages: true,
+        };
+
+        function scrollToBottom() {
+            messagePane.scrollTop = messagePane.scrollHeight;
+        }
+        function scrollToTop() {
+            messagePane.scrollTop = 0;
+        }
+        function toggleImages() {
+            settings.showImages = !settings.showImages;
+            var elems = document.querySelectorAll(".attachment,.embed img");
+            if (settings.showImages) {
+                for (var i=0; i < elems.length; i++) {
+                    elems[i].style.display = "none";
+                }
+            } else {
+                for (var i=0; i < elems.length; i++) {
+                    elems[i].style.display = "initial";
+                }
+            }
+        }
+        window.addEventListener("load", function () {
+            messagePane     = document.getElementsByClassName("message-pane")[0];
+            btnScrollTop    = document.getElementById("btn-scroll-top");
+            btnScrollBottom = document.getElementById("btn-scroll-bottom");
+            btnToggleImages = document.getElementById("btn-toggle-images"); 
+
+            if (!btnToggleImages) {
+                console.log("Error obtaining btnToggleImages")
+            }
+
+            btnScrollTop.addEventListener("click", function () {
+                scrollToTop();
+            });
+            btnScrollBottom.addEventListener("click", function () {
+                scrollToBottom();
+            });
+            btnToggleImages.addEventListener("click", function() {
+                toggleImages();
+            });
+            if (settings.startAtBottom) {
+                scrollToBottom();
+            }
+        });
+    </script>
 </body>
+
 </html>
 {{end}}

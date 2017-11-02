@@ -8,21 +8,21 @@ import (
 )
 
 // Count ...
-func Count(db *sql.DB, query string, args ...interface{}) int {
+func Count(db *sql.DB, query string, args ...interface{}) (int, error) {
 	var count int
 	row := db.QueryRow(query, args...)
 	err := row.Scan(&count)
 	if err != nil {
-		return -1
+		return -1, err
 	}
-	return count
+	return count, nil
 }
 
 // ChannelMessages ...
 func ChannelMessages(db *sql.DB, channelID string, offset, limit int) ([]*discordgo.Message, error) {
 	var rows *sql.Rows
 	if limit > 0 || offset > 0 {
-		r, err := db.Query("SELECT * FROM messages WHERE channelid=? ORDER BY messageID LIMIT ?, ?", channelID, offset, limit)
+		r, err := db.Query("SELECT * FROM messages WHERE channelid=? ORDER BY messageID LIMIT ? OFFSET ?", channelID, limit, offset)
 		if err != nil {
 			return nil, err
 		}
@@ -41,6 +41,24 @@ func ChannelMessages(db *sql.DB, channelID string, offset, limit int) ([]*discor
 	return messages, nil
 }
 
+// Channel ...
+func Channel(db *sql.DB, channelID string) (*discordgo.Channel, error) {
+	rows, err := db.Query("SELECT * FROM channels WHERE channelID=?", channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !rows.Next() {
+		return nil, errors.New("No result found")
+	}
+	channel, err := scanChannel(rows)
+	if err != nil {
+		return nil, err
+	}
+
+	return channel, nil
+}
+
 // Guild ...
 func Guild(db *sql.DB, guildID string) (*discordgo.Guild, error) {
 	rows, err := db.Query("SELECT * FROM guilds WHERE guildID=?", guildID)
@@ -54,7 +72,7 @@ func Guild(db *sql.DB, guildID string) (*discordgo.Guild, error) {
 	}
 
 	if len(guilds) == 0 {
-		return nil, errors.New("guild not found")
+		return nil, errors.New("guild not found: " + guildID)
 	}
 
 	return guilds[0], nil

@@ -2,7 +2,7 @@
 <div class='guild-pane'>
     {{ range .Guilds }} 
         <div class='guild-block'>
-            <img class='guild-splash' src='{{ getguildsplash . }}'>
+            <img class='guild-splash' src='{{ getGuildSplash . }}'>
             <span class='guild-name'>{{ .Name }}</span>
         </div>
     {{ end }}

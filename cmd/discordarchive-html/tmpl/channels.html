@@ -1,9 +1,12 @@
 {{ define "channels"}}
 <div class='channel-pane'>
+    <span class='channel-pane-guildname'>{{ .Guild.Name }}</span>
     {{range .Channels }}
-    <div class='channel-block'>
-        <span class='channel-name'>{{.Name}}</span>
-    </div>
+    <a href='{{ getChannelURL . }}'>
+        <div class='channel-block'>
+            <span class='channel-name'>{{.Name}}</span>
+        </div>
+    </a>
     {{end}}
 </div>
 {{end}}

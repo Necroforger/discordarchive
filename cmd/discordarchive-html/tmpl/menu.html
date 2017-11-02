@@ -1,0 +1,11 @@
+{{ define "menu" }}
+<div class='menu-pane'>
+    <span class='menu-channel-name'>{{ .Channel.Name }}</span>
+    <span class='menu-channel-topic'>{{ .Channel.Topic }}</span>
+
+    <!-- Buttons -->
+    <button id='btn-scroll-top'>top</button>
+    <button id='btn-scroll-bottom'>bottom</button>
+    <button id='btn-toggle-images'>images</button>
+</div>
+{{ end }}

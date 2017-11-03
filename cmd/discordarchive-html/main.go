@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/Necroforger/discordarchive"
 
@@ -23,7 +25,8 @@ var (
 
 // Content is the template content.
 type Content struct {
-	Page int
+	Page    int
+	MaxPage int
 	// Current channel
 	Channel *discordgo.Channel
 	// Current guild
@@ -107,6 +110,11 @@ func generateChannel(db *sql.DB, tmpl *template.Template, channelID, path string
 		return err
 	}
 
+	guild, err := discordarchive.Guild(db, channel.GuildID)
+	if err != nil {
+		return err
+	}
+
 	guilds, err := discordarchive.Guilds(db)
 	if err != nil {
 		return err
@@ -118,6 +126,13 @@ func generateChannel(db *sql.DB, tmpl *template.Template, channelID, path string
 	}
 
 	increment := 90
+
+	cnt.Channels = channels
+	cnt.Guilds = guilds
+	cnt.Guild = guild
+	cnt.Channel = channel
+	cnt.MaxPage = mCount / increment
+
 	for i := mCount; i > 0; i -= increment {
 		limit := increment
 		offset := i - increment
@@ -130,21 +145,12 @@ func generateChannel(db *sql.DB, tmpl *template.Template, channelID, path string
 			return err
 		}
 
-		guild, err := discordarchive.Guild(db, channel.GuildID)
-		if err != nil {
-			return err
-		}
-
-		cnt.Page = 0
-		cnt.Channels = channels
-		cnt.Guilds = guilds
-		cnt.Channel = channel
-		cnt.Guild = guild
 		cnt.Messages = messages
+		cnt.Page = i / increment
 
 		f, err := os.OpenFile(
 			filepath.Join(
-				path, fmt.Sprintf("%s-%d.html", channel.Name, offset),
+				path, fmt.Sprintf("%s-%d.html", channel.Name, cnt.Page),
 			),
 			os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0600,
 		)
@@ -182,6 +188,29 @@ func createTemplate(db *sql.DB) (*template.Template, error) {
 		},
 		"getChannelURL": func(channel *discordgo.Channel) string {
 			return "../" + channel.ID + "/" + channel.Name + "-0.html"
+		},
+		"getGuildURL": func(guild *discordgo.Guild) string {
+			channels, err := discordarchive.Channels(db, guild.ID)
+			if err != nil {
+				return ""
+			}
+			if len(channels) == 0 {
+				return ""
+			}
+			return "../../" + guild.ID + "/" + channels[0].ID + "/" + channels[0].Name + "-0.html"
+		},
+		"getNextPage": func(cnt *Content, offset int) string {
+			return cnt.Channel.Name + "-" + strconv.Itoa(cnt.Page+offset) + ".html"
+		},
+		"concat": func(dat ...interface{}) string {
+			return fmt.Sprint(dat...)
+		},
+		"isImage": func(filepath string) bool {
+			return strings.HasSuffix(filepath, "png") ||
+				strings.HasSuffix(filepath, ".jpg") ||
+				strings.HasSuffix(filepath, ".jpeg") ||
+				strings.HasSuffix(filepath, ".gif") ||
+				strings.HasSuffix(filepath, ".bmp")
 		},
 	})
 	_, err := tmpl.ParseGlob("tmpl/*.html")

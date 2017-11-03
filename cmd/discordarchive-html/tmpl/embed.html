@@ -1,0 +1,30 @@
+{{define "embed"}}
+<div class='embed-pane'>
+    {{if ne .URL ""}} 
+    <a href='{{.URL}}'>
+        <strong class='embed-title'>{{ .Title }}</strong>
+    </a>
+    {{else}}
+    <strong class='embed-title'>{{ .Title }}</strong>
+    {{end}}
+    
+    <p class='embed-description'>{{ .Description }}</p>
+    {{if .Thumbnail}}{{if ne .Thumbnail.URL ""}}
+    <a href='{{.Thumbnail.URL}}'>
+        <img class='embed-thumbnail' src='{{.Thumbnail.URL}}'>
+    </a>
+    {{end}}{{end}}
+    {{if .Image}}{{if ne .Image.URL ""}}
+    <a href='{{.Image.URL}}'>
+        <img class='embed-image' src='{{.Image.URL}}'>
+    </a>
+    {{end}}{{end}}
+    {{ range .Fields}}
+    <div class='embed-field'>
+        <strong class='embed-field-title'>{{ .Name }}</strong>
+        <p class='embed-description'>{{ .Value }}</p>
+    </div>
+    {{ end }}
+    {{ .Timestamp }}
+</div>
+{{ end }}

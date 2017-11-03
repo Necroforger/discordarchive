@@ -10,16 +10,10 @@
         </div>
         <span class='content'>{{.ContentWithMentionsReplaced}}</span>
         {{ range .Attachments }}
-        <div class='attachment'>
-            <img class='attachment-image' src='{{ .URL }}'>
-        </div>
+            {{ template "attachment" .}}
         {{ end }}
         {{ range .Embeds }}
-        <div class='embed'>
-            {{ if .Thumbnail }}
-            <a href='{{.URL}}'><img class='embed-thumbnail' src='{{.Thumbnail.URL}}'></a>
-            {{ end }}
-        </div>
+            {{ template "embed" .}}
         {{ end }}
     </div>
     {{end}}

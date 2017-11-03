@@ -1,0 +1,9 @@
+{{define "attachment"}}
+<div class='attachment-pane'>
+    <p>
+        <a class='attachment-title' href='{{.URL}}'>{{.Filename}}</a>
+    </p>
+    {{if isImage .Filename}}
+    <img class='attachment-image' src='{{.URL}}'> {{end}}
+</div>
+{{end}}

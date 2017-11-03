@@ -7,5 +7,23 @@
     <button id='btn-scroll-top'>top</button>
     <button id='btn-scroll-bottom'>bottom</button>
     <button id='btn-toggle-images'>images</button>
+
+    <!-- Paginator -->
+    <a href='{{ concat .Channel.Name "-" .MaxPage ".html"}}'>
+        <button id='btn-last-page'>>></button>
+    </a>
+    <a href='{{ concat .Channel.Name "-0.html"}}'>
+        <button id='btn-first-page'><<</button>
+    </a>
+    {{ if ne .Page .MaxPage }}
+    <a href='{{ getNextPage . 1 }}'>
+        <button id='btn-next-page'>\/</button>
+    </a>
+    {{ end }}
+    {{ if ne .Page 0 }} 
+    <a href='{{ getNextPage . -1 }}'>
+        <button id='btn-previous-page'>/\</button>
+    </a>
+    {{ end }}
 </div>
 {{ end }}

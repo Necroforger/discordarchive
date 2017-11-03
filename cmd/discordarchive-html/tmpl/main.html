@@ -1,6 +1,5 @@
 {{ define "main" }}
 <html>
-
 <head>
     <title>Discord archive</title>
     <style>
@@ -10,21 +9,16 @@
             background-color: #36393E;
             color: #C0BABC;
         }
-
         /* Scrollbar colours */
-
         ::-webkit-scrollbar {
             width: 3px;
             background: transparent;
             /* make scrollbar transparent */
         }
-
         ::-webkit-scrollbar-thumb {
             background-color: rgb(255, 255, 255);
         }
-
         /* Guilds             */
-
         .guild-pane {
             position: fixed;
             width: 100px;
@@ -33,7 +27,6 @@
             padding-top: 30px;
             overflow-y: scroll;
         }
-
         .guild-block {
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             border-bottom: 1px solid rgb(128, 116, 116);
@@ -43,13 +36,10 @@
             color: white;
             word-wrap: break-word;
         }
-
         .guild-block:hover {
             background-color: black;
         }
-
         /* Channels           */
-
         .channel-pane {
             padding-top: 30px;
             left: 100px;
@@ -62,7 +52,7 @@
         .channel-pane a {
             text-decoration: none;
         }
-
+        
         .channel-pane-guildname {
             padding-left: 10px;
             margin-bottom: 10px;
@@ -75,14 +65,11 @@
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             padding-bottom: 10px;
         }
-
         .channel-block:hover {
             background-color: purple;
         }
 
-
         /* Menu             */
-
         .menu-pane {
             position: fixed;
             top: 0px;
@@ -93,12 +80,10 @@
             padding-left: 30px;
             box-shadow: 0px 0px 5px 0px black;
         }
-
         .menu-channel-name {
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
             font-size: 30px;
         }
-
         .menu-pane button {
             margin-left: 20px;
             float: right;
@@ -108,6 +93,9 @@
             box-shadow: 0px 0px 5px 0px black;
             background-color: #36393E;
             color: white;
+        }
+        .menu-pane button:hover {
+            background-color: purple;
         }
 
         /* Messages            */
@@ -120,50 +108,55 @@
             right: 0px;
             position: fixed;
         }
-
         .message-block {
             border-bottom: 1px solid rgb(66, 62, 63);
             padding-bottom: 30px;
             padding-top: 10px;
             padding-left: 20px;
         }
-
         .username {
             padding-left: 10px;
             vertical-align: top;
             color: white;
         }
-
         .nickname {
             padding-left: 20px;
             vertical-align: top;
         }
-
         .avatar {
             border-radius: 360px;
         }
-
         .content {
             white-space: pre-wrap;
             word-wrap: break-word;
         }
-
+        .embed-pane,
+        .attachment-pane {
+            background-color: rgb(38, 40, 44);
+            padding: 3px;
+        }
+        .embed-pane a,
+        .attachment-pane a {
+            text-decoration: none;
+        }
         .attachment-image,
         .embed-thumbnail {
             max-width: 25vw;
             max-height: 25vh;
         }
-
+        .embed-title,
+        .attachment-title {
+            color: white;
+            text-decoration: none;
+        }
         .userinfo {
             padding-bottom: 10px;
         }
-
         .msgid {
             float: right;
         }
     </style>
 </head>
-
 <body>
     {{ template "guilds" . }} 
     {{ template "channels" .}} 
@@ -174,12 +167,10 @@
             btnScrollTop, 
             btnScrollBottom,
             btnToggleImages;
-
         var settings = {
-            startAtBottom: true,
-            showImages: true,
+            startAtBottom: false,
+            showImages: !true,
         };
-
         function scrollToBottom() {
             messagePane.scrollTop = messagePane.scrollHeight;
         }
@@ -205,10 +196,6 @@
             btnScrollBottom = document.getElementById("btn-scroll-bottom");
             btnToggleImages = document.getElementById("btn-toggle-images"); 
 
-            if (!btnToggleImages) {
-                console.log("Error obtaining btnToggleImages")
-            }
-
             btnScrollTop.addEventListener("click", function () {
                 scrollToTop();
             });
@@ -224,6 +211,5 @@
         });
     </script>
 </body>
-
 </html>
 {{end}}

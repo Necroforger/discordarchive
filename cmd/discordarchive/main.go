@@ -60,6 +60,14 @@ func main() {
 		return
 	}
 
+	defer func() {
+		err = tx.Commit()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}()
+
 	arc := discordarchive.New()
 	arc.Log = os.Stderr
 	arc.SavePath = *OutPath
@@ -116,11 +124,5 @@ func main() {
 				}
 			}
 		}
-	}
-
-	err = tx.Commit()
-	if err != nil {
-		log.Println(err)
-		return
 	}
 }
